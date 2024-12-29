@@ -46,7 +46,7 @@ def initialize_addon(addon_dir: str) -> None:
     modules = bpy.utils.modules_from_path(addon_dir, loaded_modules)
     for module in modules:
         addon_name = module.__name__
-        print(f'<loading: {addon_name}>')
+        print(f'<LOADING: {addon_name}>')
         importlib.reload(module)
         if addon_name not in bpy.context.preferences.addons:
             bpy.ops.preferences.addon_enable(module=addon_name)
