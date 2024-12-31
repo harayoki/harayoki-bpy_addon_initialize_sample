@@ -2,9 +2,13 @@ import sys
 from typing import List
 import argparse
 from pathlib import Path
+import numpy as np
 import importlib
-import bpy
 
+try:
+    import bpy
+except ImportError:
+    sys.exit("this script is only run in blender environment")
 
 def print_sys_paths():
     print("\nsys.paths__________________________")
@@ -32,6 +36,8 @@ def priint_modules(prefix: str = '') -> None:
 
 
 def initialize_addon(addon_dir: str) -> None:
+    if not addon_dir:
+        return
     addon_dir_path: Path = Path(addon_dir)
     if not addon_dir_path.exists():
         sys.exit(f"addon dir not found: {addon_dir}")
@@ -53,21 +59,35 @@ def initialize_addon(addon_dir: str) -> None:
             print(f"registered: {module}")
 
 
-def main() -> None:
+def run() -> None:
     parser = argparse.ArgumentParser(description='bpy addon initialize test')
-    parser.add_argument('-a', '--addon_dir', type=str, help='addon dir')
-    parser.add_argument('-o', '--output_dir', type=str, help='output dir')
-    args = parser.parse_args()
+    parser.add_argument('-a', '--addon_dir', type=str, help='addon dir', default='')
+    addon_dir = ''
+    if '--' in sys.argv:
+        # blender background 起動時の引数を取得
+        args = parser.parse_args(sys.argv[sys.argv.index('--') + 1:])
+    else:
+        # python script として実行された場合の引数を取得
+        args = parser.parse_args()
+    addon_dir = args.addon_dir
+    main(addon_dir)
 
-    con: bpy = bpy.context
+
+def main(addon_dir:str = '') -> None:
     print_script_paths()
     print_sys_paths()
     # priint_modules('bl_')
     print_addons("default addons")
-    if args.addon_dir:
-        initialize_addon(args.addon_dir)
-    print_addons("current addons")
+    if addon_dir:
+        initialize_addon(addon_dir)
+        print_addons("current addons")
 
 
-main()
+if __name__ == "__main__":
+    # コマンド実行時
+    run()
+else:
+    # Blender内スクリプトパネルでの実行時
+    # main(addon_dir='addonsフォルダへのパス')
+    pass
 
