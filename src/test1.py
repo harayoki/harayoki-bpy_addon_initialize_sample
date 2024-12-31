@@ -83,11 +83,14 @@ def main(addon_dir:str = '') -> None:
         print_addons("current addons")
 
 
-if __name__ == "__main__":
+if bpy.app.binary_path == '':
     # コマンド実行時
     run()
+elif bpy.app.background:
+    # Blender background 起動時
+    run()
 else:
-    # Blender内スクリプトパネルでの実行時
+    # Blender内、スクリプトパネル等での実行時
     # main(addon_dir='addonsフォルダへのパス')
-    pass
+    main()
 
