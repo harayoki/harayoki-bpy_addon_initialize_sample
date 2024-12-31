@@ -63,9 +63,12 @@ def run() -> None:
     parser = argparse.ArgumentParser(description='bpy addon initialize test')
     parser.add_argument('-a', '--addon_dir', type=str, help='addon dir', default='')
     addon_dir = ''
-    if '--' in sys.argv:
-        # blender background 起動時の引数を取得
-        args = parser.parse_args(sys.argv[sys.argv.index('--') + 1:])
+    if bpy.app.background:
+        if '--' in sys.argv:
+            # blender background 起動時の引数を取得
+            args = parser.parse_args(sys.argv[sys.argv.index('--') + 1:])
+        else:
+            args = parser.parse_args([])
     else:
         # python script として実行された場合の引数を取得
         args = parser.parse_args()
