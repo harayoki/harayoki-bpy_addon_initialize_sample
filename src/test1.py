@@ -28,7 +28,7 @@ def print_addons(title: str = "addons") -> None:
     print()
 
 
-def priint_modules(prefix: str = '') -> None:
+def print_modules(prefix: str = '') -> None:
     print("\nmodules__________________________")
     for key in sys.modules:
         if not prefix or key.startswith(prefix):
@@ -62,8 +62,12 @@ def initialize_addon(addon_dir: str) -> None:
 def run() -> None:
     parser = argparse.ArgumentParser(description='bpy addon initialize test')
     parser.add_argument('-a', '--addon_dir', type=str, help='addon dir', default='')
+    parser.add_argument('-t', '--test', action='store_true', help='テストアドオンを追加して実行する')
     addon_dir = ''
-    if bpy.app.background:
+    if bpy.app.binary_path == '':
+        args = parser.parse_args()
+    elif bpy.app.background:
+        print("background mode")
         if '--' in sys.argv:
             # blender background 起動時の引数を取得
             args = parser.parse_args(sys.argv[sys.argv.index('--') + 1:])
@@ -73,7 +77,10 @@ def run() -> None:
         # python script として実行された場合の引数を取得
         args = parser.parse_args()
     addon_dir = args.addon_dir
-    main(addon_dir)
+    if args.test:
+        test_add_addon(addon_dir)
+    else:
+        main(addon_dir)
 
 
 def main(addon_dir:str = '') -> None:
@@ -84,6 +91,16 @@ def main(addon_dir:str = '') -> None:
     if addon_dir:
         initialize_addon(addon_dir)
         print_addons("current addons")
+
+
+def test_add_addon(addon_dir:str = ''):
+    if not addon_dir:
+        addon_dir_path: Path = Path(__file__).parent.parent / 'addons'
+        main(addon_dir_path.as_posix())
+    else:
+        main(addon_dir)
+    bpy.ops.object.create_hello_world(text="Hello World!!")
+
 
 
 if bpy.app.binary_path == '':
