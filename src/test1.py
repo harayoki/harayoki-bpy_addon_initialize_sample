@@ -37,34 +37,53 @@ def print_modules(prefix: str = '') -> None:
 
 
 def initialize_addon(addon_dir: str, skip_if_registered: bool = False) -> None:
-    if not addon_dir:
-        return
+    """
+    任意のアドオンディレクトリ内にあるアドオンを読み込む
+    :param addon_dir: アドオンディレクトリ
+    :param skip_if_registered: 指定すると既に登録されている場合は読み込まない
+    """
     addon_dir_path: Path = Path(addon_dir)
-    if not addon_dir_path.exists():
-        sys.exit(f"addon dir not found: {addon_dir}")
+    if not addon_dir or not addon_dir_path.exists():
+        sys.exit(f"addon dir not found: '{addon_dir}'")
+
+    # アドオンディレクトリをsys.pathに追加
     if addon_dir not in sys.path:
         sys.path.append(addon_dir)
 
-    for path in addon_dir_path.iterdir():
-        if path.is_dir():
-            print(f"found module dir: {path}")
+    # アドオンファイルおよびアドオンディレクトリをデバッグ用に表示
+    for p in addon_dir_path.iterdir():
+        if p.is_dir():
+            if (p / '__init__.py').exists():
+                print(f"found addon dir: {p}")
+        elif p.is_file():
+            if p.suffix == '.py':
+                print(f"found addon file: {p}")
     
+    # アドオンの探索 アドオンファイルもアドオンディレクトリもmodulesとして発見される
     loaded_modules = set()
     modules = bpy.utils.modules_from_path(addon_dir, loaded_modules)
+
+    # 見つかったアドオンの追加
     for module in modules:
         addon_name = module.__name__
+        print(f"found addon file: {addon_name}")
+        # すでに登録されている場合の処理
         registered = addon_name in bpy.context.preferences.addons
-        if skip_if_registered and registered:
-            print(f"already registered: {addon_name}")
-            continue
         if registered:
-            print(f"unregister: {addon_name}")
-            bpy.ops.preferences.addon_disable(module=addon_name)
-        print(f'<LOADING: {addon_name}>')
+            if skip_if_registered:
+                print(f"already registered: {addon_name}")
+                continue
+            else:
+                bpy.ops.preferences.addon_disable(module=addon_name)
+                print(f"unregister: {addon_name}")
+        # アドオンソースの読み込み importlib を使う
+        print(f'* ADDON LOADING: {addon_name}')
         importlib.reload(module)
+
+        # アドオンを登録 直接 .preferences.addons に追加はできない
         if addon_name not in bpy.context.preferences.addons:
             bpy.ops.preferences.addon_enable(module=addon_name)
-            print(f"registered: {module}")
+            print(f"* ADDON REGISTERED: {module.__name__}")
 
 
 def run() -> None:
