@@ -80,7 +80,7 @@ def initialize_addon(addon_dir: str, skip_if_registered: bool = False) -> None:
         print(f'* ADDON LOADING: {addon_name}')
         importlib.reload(module)
 
-        # アドオンを登録 直接 .preferences.addons に追加はできない
+        # アドオンを登録 直接 preferences.addons に追加はできない
         if addon_name not in bpy.context.preferences.addons:
             bpy.ops.preferences.addon_enable(module=addon_name)
             print(f"* ADDON REGISTERED: {module.__name__}")
