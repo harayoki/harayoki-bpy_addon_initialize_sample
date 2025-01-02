@@ -1,4 +1,5 @@
 import sys
+import os
 from typing import List
 import argparse
 from pathlib import Path
@@ -96,11 +97,12 @@ def main(addon_dir:str = '') -> None:
 def test_add_addon(addon_dir:str = ''):
     if not addon_dir:
         addon_dir_path: Path = Path(__file__).parent.parent / 'addons'
-        main(addon_dir_path.as_posix())
+        addon_dir = addon_dir_path.as_posix()
+    if not os.path.exists(addon_dir):
+        print(f"addon dir not found: {addon_dir}")
     else:
         main(addon_dir)
-    bpy.ops.object.create_hello_world(text="Hello World!!")
-
+        bpy.ops.object.create_hello_world(text="こんにちわ Blender!!")
 
 
 if bpy.app.binary_path == '':
@@ -112,5 +114,6 @@ elif bpy.app.background:
 else:
     # Blender内、スクリプトパネル等での実行時
     # main(addon_dir='addonsフォルダへのパス')
-    main()
+    # test_add_addon(addon_dir='addonsフォルダへのパス')
+    main("******/addons")
 
