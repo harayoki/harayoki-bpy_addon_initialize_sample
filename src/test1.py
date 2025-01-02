@@ -24,8 +24,8 @@ def print_script_paths():
 def print_addons(title: str = "addons") -> None:
     print(f"\n{title}__________________________")
     addon: bpy.types.Addon
-    for addon in bpy.context.preferences.addons:
-        print(addon)
+    for addon in bpy.context.preferences.addons:  # addons: bpy_prop_collection
+        print(addon.module)  # name
     print()
 
 
@@ -36,7 +36,7 @@ def print_modules(prefix: str = '') -> None:
             print(key)  # key is module name
 
 
-def initialize_addon(addon_dir: str) -> None:
+def initialize_addon(addon_dir: str, skip_if_registered: bool = False) -> None:
     if not addon_dir:
         return
     addon_dir_path: Path = Path(addon_dir)
@@ -53,6 +53,13 @@ def initialize_addon(addon_dir: str) -> None:
     modules = bpy.utils.modules_from_path(addon_dir, loaded_modules)
     for module in modules:
         addon_name = module.__name__
+        registered = addon_name in bpy.context.preferences.addons
+        if skip_if_registered and registered:
+            print(f"already registered: {addon_name}")
+            continue
+        if registered:
+            print(f"unregister: {addon_name}")
+            bpy.ops.preferences.addon_disable(module=addon_name)
         print(f'<LOADING: {addon_name}>')
         importlib.reload(module)
         if addon_name not in bpy.context.preferences.addons:
