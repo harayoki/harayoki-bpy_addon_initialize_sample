@@ -1,3 +1,5 @@
+import bpy
+
 # 何もしないアドオン
 bl_info = {
     "name": "Do Nothing Addon",
@@ -5,13 +7,14 @@ bl_info = {
     "category": "Object",
 }
 
-import bpy
 
 def register():
     pass
 
+
 def unregister():
     pass
+
 
 if __name__ == "__main__":
     register()

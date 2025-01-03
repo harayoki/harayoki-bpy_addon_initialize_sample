@@ -1,9 +1,7 @@
 import sys
 import os
-from typing import List
 import argparse
 from pathlib import Path
-import numpy as np
 import importlib
 
 try:
@@ -11,15 +9,18 @@ try:
 except ImportError:
     sys.exit("this script is only run in blender environment")
 
-def print_sys_paths():
+
+def print_sys_paths() -> None:
     print("\nsys.paths__________________________")
     for path in sys.path:
         print(path)
 
-def print_script_paths():
+
+def print_script_paths() -> None:
     print("\nscript_paths__________________________")
     for path in bpy.utils.script_paths():
         print(path)
+
 
 def print_addons(title: str = "addons") -> None:
     print(f"\n{title}__________________________")
@@ -92,7 +93,6 @@ def run() -> None:
     parser.add_argument('-t', '--test', action='store_true', help='テストアドオンを追加して実行する')
     parser.add_argument('--save_blend', type=str, default='',
                          help='テスト実行結果を指定したパスにblendファイルとして保存する')
-    addon_dir = ''
     if bpy.app.binary_path == '':
         args = parser.parse_args()
     elif bpy.app.background:
@@ -116,7 +116,7 @@ def run() -> None:
 def main(addon_dir: str = '') -> None:
     print_script_paths()
     print_sys_paths()
-    # priint_modules('bl_')
+    # print_modules('bl_')
     print_addons("default addons")
     if addon_dir:
         initialize_addon(addon_dir)
