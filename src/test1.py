@@ -90,6 +90,8 @@ def run() -> None:
     parser = argparse.ArgumentParser(description='bpy addon initialize test')
     parser.add_argument('-a', '--addon_dir', type=str, help='addon dir', default='')
     parser.add_argument('-t', '--test', action='store_true', help='テストアドオンを追加して実行する')
+    parser.add_argument('--save_blend', type=str, default='',
+                         help='テスト実行結果を指定したパスにblendファイルとして保存する')
     addon_dir = ''
     if bpy.app.binary_path == '':
         args = parser.parse_args()
@@ -104,13 +106,14 @@ def run() -> None:
         # python script として実行された場合の引数を取得
         args = parser.parse_args()
     addon_dir = args.addon_dir
+    save_blend = args.save_blend
     if args.test:
-        test_add_addon(addon_dir)
+        test_add_addon(addon_dir, save_blend)
     else:
         main(addon_dir)
 
 
-def main(addon_dir:str = '') -> None:
+def main(addon_dir: str = '') -> None:
     print_script_paths()
     print_sys_paths()
     # priint_modules('bl_')
@@ -120,7 +123,7 @@ def main(addon_dir:str = '') -> None:
         print_addons("current addons")
 
 
-def test_add_addon(addon_dir:str = ''):
+def test_add_addon(addon_dir: str = '', save_blend: str= '') -> None:
     if not addon_dir:
         addon_dir_path: Path = Path(__file__).parent.parent / 'addons'
         addon_dir = addon_dir_path.as_posix()
@@ -129,6 +132,13 @@ def test_add_addon(addon_dir:str = ''):
     else:
         main(addon_dir)
         bpy.ops.object.create_hello_world(text="こんにちわ Blender!!")
+        if not save_blend:
+            return
+        if not save_blend.endswith('.blend'):
+            save_blend += '.blend'
+        if not Path(save_blend).parent.exists():
+            Path(save_blend).parent.mkdir(parents=True, exist_ok=True)
+        bpy.ops.wm.save_as_mainfile(filepath=save_blend)
 
 
 if bpy.app.binary_path == '':
